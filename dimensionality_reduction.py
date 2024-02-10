@@ -9,6 +9,8 @@ from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
+from cuml.manifold import TSNE as TSNE_CUDA
+
 import pandas as pd
 import numpy as np
 
@@ -46,7 +48,7 @@ class DimensonalityReduction:
             
         return self.X_train, self.X_test, self.y_train, self.y_test            
 
-    def apply_PCA(self, n_components=2):
+    def apply_PCA(self, device='CPU', n_components=2):
         """
         Applies Principal Component Analysis (PCA) to reduce the dimensionality of the training and test data.
 
@@ -66,7 +68,7 @@ class DimensonalityReduction:
         
         return self.X_train_reduced, self.X_test_reduced
 
-    def apply_LDA(self, n_components=2):
+    def apply_LDA(self, device='CPU', n_components=2):
         lda = LinearDiscriminantAnalysis(n_components=n_components)
         self.X_train_reduced = lda.fit_transform(self.X_train, self.y_train)
         self.X_test_reduced = lda.transform(self.X_test)
@@ -80,29 +82,46 @@ class DimensonalityReduction:
         
         return self.X_train_reduced, self.X_test_reduced
 
-    def apply_Isomap(self, n_components=2):
+    def apply_Isomap(self, device='CPU', n_components=2):
         iso = Isomap(n_components=n_components, n_neighbors=10)
         self.X_train_reduced = iso.fit_transform(self.X_train)
         self.X_test_reduced = iso.transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
     
-    def apply_Localembed(self, n_components=2):
+    def apply_Localembed(self, device='CPU', n_components=2):
         locle = LocallyLinearEmbedding(n_components=n_components)
         self.X_train_reduced = locle.fit_transform(self.X_train)
         self.X_test_reduced = locle.transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
     
-    def apply_SpectEmbed(self, n_components=2):
+    def apply_SpectEmbed(self, device='CPU', n_components=2):
         spec = SpectralEmbedding(n_components=n_components)
         self.X_train_reduced = spec.fit_transform(self.X_train)
         self.X_test_reduced = spec.fit_transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
     
-    def apply_Tsne(self, n_components=2):
-        tsne = TSNE(n_components=n_components, init='pca')
+    def apply_Tsne(self, device='CPU', n_components=2):
+        """
+        Applies t-SNE dimensionality reduction to the training and test data.
+
+        Parameters:
+        - device (str): The device to use for computation. Options are 'CPU' and 'CUDA'. Default is 'CPU'.
+        - init (str): The initialization method for t-SNE. Default is 'pca'.
+        - n_components (int): The number of dimensions in the reduced space. Default is 2.
+
+        Returns:
+        - X_train_reduced (array-like): The training data after dimensionality reduction.
+        - X_test_reduced (array-like): The test data after dimensionality reduction.
+        """
+
+        if device == 'CPU':            
+            tsne = TSNE(n_components=n_components, init='pca')
+        elif device == 'CUDA':
+            tsne = TSNE_CUDA(n_components=n_components, method='fft')
+        
         self.X_train_reduced = tsne.fit_transform(self.X_train)
         self.X_test_reduced = tsne.fit_transform(self.X_test)
         
@@ -123,14 +142,22 @@ class DimensonalityReduction:
             return adjusted_rand_score(self.y_test, y_pred)
         
 
-    def run_multiple_training(self, models, use_reduction=False, reduction_method='PCA', n_components=None, n_runs=1):
+    def run_multiple_training(
+        self, 
+        models, 
+        use_reduction=False, 
+        reduction_method='PCA', 
+        device='CPU', 
+        n_components=None, 
+        n_runs=1
+    ):
         results = []
         for name, model in models.items():
             evals = []
             for _ in range(n_runs):
                 if use_reduction:
                     reduction_method_func = getattr(self, f"apply_{reduction_method}")
-                    X_train_reduced, X_test_reduced = reduction_method_func(n_components=n_components) 
+                    X_train_reduced, X_test_reduced = reduction_method_func(device=device, n_components=n_components) 
                     acc = self.train_test_model(
                         model=model[0], 
                         model_type=model[1],
@@ -164,7 +191,7 @@ class DimensonalityReduction:
             
         return pd.DataFrame(results)
 
-    def run_multiple_training_(self, models, use_reduction=False, reduction_method='PCA', n_components=None, n_runs=1):
+    def run_multiple_training_(self, models, use_reduction=False, reduction_method='PCA', n_components=None, device='CPU', n_runs=1):
         
         results = {}
         
