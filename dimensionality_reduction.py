@@ -9,7 +9,7 @@ from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-from cuml.manifold import TSNE as TSNE_CUDA
+# rom cuml.manifold import TSNE as TSNE_CUDA
 
 import pandas as pd
 import numpy as np
@@ -75,7 +75,7 @@ class DimensonalityReduction:
         
         return self.X_train_reduced, self.X_test_reduced
 
-    def apply_KernelPCA(self, kernel='linear', n_components=2):
+    def apply_KernelPCA(self, device='CPU', kernel='linear', n_components=2):
         kpca = KernelPCA(kernel=kernel, n_components=n_components)
         self.X_train_reduced = kpca.fit_transform(self.X_train)
         self.X_test_reduced = kpca.transform(self.X_test)
