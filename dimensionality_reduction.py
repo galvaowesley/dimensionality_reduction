@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 class DimensonalityReduction:
     
-    def __init__(self, dataset, random_state=None, scaler=True, test_size=0.5, split_data=True):
-        self.X = dataset.data
-        self.y = dataset.target
+    def __init__(self, X, y, random_state=None, scaler=True, test_size=0.5, split_data=True):
+        self.X = X
+        self.y = y
         
         if split_data is True:    
             self.X_train, self.X_test, self.y_train, self.y_test = self.split_data(
@@ -142,56 +142,6 @@ class DimensonalityReduction:
         elif model_type == 'unsupervised':
             return adjusted_rand_score(self.y_test, y_pred)
         
-
-    def run_multiple_training_(
-        self, 
-        models, 
-        use_reduction=False, 
-        reduction_method='PCA', 
-        device='CPU', 
-        n_components=None, 
-        n_runs=1
-    ):
-        results = []
-        for name, model in models.items():
-            evals = []
-            for _ in range(n_runs):
-                if use_reduction:
-                    reduction_method_func = getattr(self, f"apply_{reduction_method}")
-                    X_train_reduced, X_test_reduced = reduction_method_func(device=device, n_components=n_components) 
-                    acc = self.train_test_model(
-                        model=model[0], 
-                        model_type=model[1],
-                        X_train=X_train_reduced,
-                        X_test=X_test_reduced
-                    )
-                else:
-                    reduction_method = 'Raw Data'
-                    acc = self.train_test_model(
-                        model=model[0],
-                        model_type=model[1], 
-                        X_train=self.X_train, 
-                        X_test=self.X_test
-                    )
-                evals.append(acc)
-                
-            average_eval = np.mean(evals)
-            std_eval = round(np.std(evals), 4)
-            
-            if model[1] == 'supervised':
-                results.append(
-                    {'model': name, f'{reduction_method} avg acc': average_eval, f'{reduction_method} std acc': std_eval }
-                )
-            elif model[1] == 'unsupervised':
-                results.append(
-                    {'model': name, f'{reduction_method} avg rand_score': average_eval, f'{reduction_method} std rand_score': std_eval }
-                )
-                
-
-
-            
-        return pd.DataFrame(results)
-
     
     def run_multiple_training(
         self, 
