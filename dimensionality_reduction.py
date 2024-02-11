@@ -9,7 +9,7 @@ from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-# rom cuml.manifold import TSNE as TSNE_CUDA
+# from cuml.manifold import TSNE as TSNE_CUDA
 
 import pandas as pd
 import numpy as np
