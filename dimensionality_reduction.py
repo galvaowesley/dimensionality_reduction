@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 
 
 class DimensonalityReduction:
@@ -142,7 +143,7 @@ class DimensonalityReduction:
             return adjusted_rand_score(self.y_test, y_pred)
         
 
-    def run_multiple_training(
+    def run_multiple_training_(
         self, 
         models, 
         use_reduction=False, 
@@ -191,16 +192,25 @@ class DimensonalityReduction:
             
         return pd.DataFrame(results)
 
-    def run_multiple_training_(self, models, use_reduction=False, reduction_method='PCA', n_components=None, device='CPU', n_runs=1):
+    
+    def run_multiple_training(
+        self, 
+        models, 
+        use_reduction=False, 
+        reduction_method='PCA', 
+        device='CPU', 
+        n_components=None, 
+        n_runs=1
+    ):
+        results = []
         
-        results = {}
-        
-        for name, model in models.items():
-            accs = []
-            for _ in range(n_runs):
+        for name, model in tqdm(models.items(), desc="Overall Progress"):
+            evals = []
+            
+            for _ in tqdm(range(n_runs), desc=f"------{name} : Runs Progress", leave=True):
                 if use_reduction:
                     reduction_method_func = getattr(self, f"apply_{reduction_method}")
-                    X_train_reduced, X_test_reduced = reduction_method_func(n_components=n_components) 
+                    X_train_reduced, X_test_reduced = reduction_method_func(device=device, n_components=n_components) 
                     acc = self.train_test_model(
                         model=model[0], 
                         model_type=model[1],
@@ -208,19 +218,28 @@ class DimensonalityReduction:
                         X_test=X_test_reduced
                     )
                 else:
-                    reduction_method = 'None'
+                    reduction_method = 'Raw Data'
                     acc = self.train_test_model(
                         model=model[0],
                         model_type=model[1], 
                         X_train=self.X_train, 
                         X_test=self.X_test
                     )
-                accs.append(acc)
-            results[name] = np.mean(accs)           
-            
-            
-        df = pd.DataFrame(results, index=[reduction_method]) 
-        df.index.name = 'reduction_method'
+                evals.append(acc)
+
+            average_eval = np.mean(evals)
+            std_eval = round(np.std(evals), 4)
+
+            if model[1] == 'supervised':
+                results.append(
+                    {'model': name, f'{reduction_method} avg acc': average_eval, f'{reduction_method} std acc': std_eval }
+                )
+            elif model[1] == 'unsupervised':
+                results.append(
+                    {'model': name, f'{reduction_method} avg rand_score': average_eval, f'{reduction_method} std rand_score': std_eval }
+                )
         
-        return pd.DataFrame(results, index=[0])
+        return pd.DataFrame(results)
+
+
     
