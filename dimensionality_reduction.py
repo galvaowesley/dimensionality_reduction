@@ -122,8 +122,24 @@ class DimensonalityReduction:
         - X_test_reduced (ndarray): The reduced test data.
         """
         lda = LinearDiscriminantAnalysis(n_components=n_components)
-        self.X_train_reduced = lda.fit_transform(self.X_train, self.y_train)
-        self.X_test_reduced = lda.transform(self.X_test)
+        
+        X_train = self.X_train.copy()
+        X_test = self.X_test.copy()
+        
+        # Convert to numpy array if input is a pandas DataFrame
+        if isinstance(X_train, pd.DataFrame) & isinstance(X_test, pd.DataFrame):
+            X_train = X_train.to_numpy()
+            X_test = X_test.to_numpy()
+        
+            
+        X_train.flat[::X_train.shape[1] + 1] += 0.01  # Make X invertible
+        X_test.flat[::X_test.shape[1] + 1] += 0.01  # Make X invertible
+        
+        self.X_train_reduced = lda.fit_transform(X_train, self.y_train)
+        self.X_test_reduced = lda.transform(X_test)
+        
+        # self.X_train_reduced = lda.fit_transform(self.X_train, self.y_train)
+        # self.X_test_reduced = lda.transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
 
@@ -161,7 +177,7 @@ class DimensonalityReduction:
         - X_train_reduced (ndarray): The reduced training data.
         - X_test_reduced (ndarray): The reduced test data.
         """
-        iso = Isomap(n_components=n_components, n_neighbors=10, n_jobs=n_jobs)
+        iso = Isomap(n_components=n_components,  n_jobs=n_jobs)
         self.X_train_reduced = iso.fit_transform(self.X_train)
         self.X_test_reduced = iso.transform(self.X_test)
         
@@ -221,7 +237,7 @@ class DimensonalityReduction:
         """
 
         if device == 'CPU':            
-            tsne = TSNE(n_components=n_components, init='pca',  n_jobs=n_jobs)
+            tsne = TSNE(n_components=n_components, init='pca', perplexity=30)
         elif device == 'CUDA':
             tsne = TSNE_CUDA(n_components=n_components, method='fft')
         
