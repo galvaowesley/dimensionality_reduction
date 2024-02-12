@@ -1,8 +1,8 @@
-# Dimemsionality reduction
+# Dimensionality reduction
 
 This repository contains a Python class for performing dimensionality reduction experiments, particularly in the context of machine learning. The class provides a comprehensive set of methods for applying various dimensionality reduction techniques and evaluating the performance of machine learning models.
 
-## DimensionalityReduction Overview
+## `class DimensionalityReduction()` Overview
 
 ### Overview
 The `DimensionalityReduction` class is designed to facilitate dimensionality reduction experiments, particularly in the context of machine learning. It provides a comprehensive set of methods for applying various dimensionality reduction techniques and evaluating the performance of machine learning models.
