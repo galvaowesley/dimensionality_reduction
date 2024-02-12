@@ -12,26 +12,19 @@ The `DimensionalityReduction` class is designed to facilitate dimensionality red
 
 The following dimensionality reduction methods are available:
 
-1. Principal Component Analysis (PCA)
-   - Method String: `'PCA'`
+1. Principal Component Analysis (PCA): `reduction_method = 'PCA'`
    
-2. Linear Discriminant Analysis (LDA)
-   - Method String: `'LDA'`
+2. Linear Discriminant Analysis (LDA): `reduction_method = 'LDA'`
    
-3. Kernel Principal Component Analysis (KernelPCA)
-   - Method String: `'KernelPCA'`
+3. Kernel Principal Component Analysis (KernelPCA): `reduction_method = 'KernelPCA'`
 
-4. Isomap
-   - Method String: `'Isomap'`
+4. Isomap: `reduction_method = 'Isomap'`
 
-5. Locally Linear Embedding (LLE)
-   - Method String: `'Localembed'`
+5. Locally Linear Embedding (LLE): `reduction_method = 'Localembed'`
 
-6. Spectral Embedding
-   - Method String: `'SpectEmbed'`
+6. Spectral Embedding: `reduction_method = 'SpectEmbed'`
 
-7. t-Distributed Stochastic Neighbor Embedding (t-SNE)
-   - Method String: `'Tsne'`
+7. t-Distributed Stochastic Neighbor Embedding (t-SNE): `reduction_method = 'Tsne'`
 
 
 - **Data Splitting and Scaling:**
