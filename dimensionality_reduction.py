@@ -87,7 +87,7 @@ class DimensonalityReduction:
                 
             return self.X_train, self.X_test, self.y_train, self.y_test
 
-    def apply_PCA(self, device='CPU', n_components=2):
+    def apply_PCA(self, device='CPU', n_jobs=1, n_components=2):
         """
         Applies Principal Component Analysis (PCA) to reduce the dimensionality of the training and test data.
 
@@ -107,7 +107,7 @@ class DimensonalityReduction:
         
         return self.X_train_reduced, self.X_test_reduced
 
-    def apply_LDA(self, device='CPU', n_components=2):
+    def apply_LDA(self, device='CPU', n_jobs=1, n_components=2):
         """
         Applies Linear Discriminant Analysis (LDA) to reduce the dimensionality of the data.
 
@@ -127,7 +127,7 @@ class DimensonalityReduction:
         
         return self.X_train_reduced, self.X_test_reduced
 
-    def apply_KernelPCA(self, device='CPU', kernel='linear', n_components=2):
+    def apply_KernelPCA(self, device='CPU', n_jobs=1, kernel='linear', n_components=2):
         """
         Applies Kernel Principal Component Analysis (KernelPCA) to reduce the dimensionality of the training and test data.
 
@@ -141,13 +141,13 @@ class DimensonalityReduction:
         -------
         - tuple: A tuple containing the reduced training data and the reduced test data.
         """
-        kpca = KernelPCA(kernel=kernel, n_components=n_components)
+        kpca = KernelPCA(kernel=kernel, n_components=n_components, n_jobs=n_jobs)
         self.X_train_reduced = kpca.fit_transform(self.X_train)
         self.X_test_reduced = kpca.transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
 
-    def apply_Isomap(self, device='CPU', n_components=2):
+    def apply_Isomap(self, device='CPU', n_jobs=1, n_components=2):
         """
         Applies the Isomap dimensionality reduction technique to the training and test data.
 
@@ -161,13 +161,13 @@ class DimensonalityReduction:
         - X_train_reduced (ndarray): The reduced training data.
         - X_test_reduced (ndarray): The reduced test data.
         """
-        iso = Isomap(n_components=n_components, n_neighbors=10)
+        iso = Isomap(n_components=n_components, n_neighbors=10, n_jobs=n_jobs)
         self.X_train_reduced = iso.fit_transform(self.X_train)
         self.X_test_reduced = iso.transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
     
-    def apply_Localembed(self, device='CPU', n_components=2):
+    def apply_Localembed(self, device='CPU', n_jobs=1, n_components=2):
         """
         Applies Locally Linear Embedding (LLE) to reduce the dimensionality of the training and test data.
 
@@ -180,13 +180,13 @@ class DimensonalityReduction:
         ------
         - tuple: A tuple containing the reduced training data and the reduced test data.
         """
-        locle = LocallyLinearEmbedding(n_components=n_components)
+        locle = LocallyLinearEmbedding(n_components=n_components, n_jobs=n_jobs)
         self.X_train_reduced = locle.fit_transform(self.X_train)
         self.X_test_reduced = locle.transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
     
-    def apply_SpectEmbed(self, device='CPU', n_components=2):
+    def apply_SpectEmbed(self, device='CPU', n_jobs=1, n_components=2):
         """
         Applies Spectral Embedding to reduce the dimensionality of the data.
 
@@ -200,13 +200,13 @@ class DimensonalityReduction:
         - X_train_reduced (array-like): The reduced training data.
         - X_test_reduced (array-like): The reduced test data.
         """
-        spec = SpectralEmbedding(n_components=n_components)
+        spec = SpectralEmbedding(n_components=n_components, n_jobs=n_jobs)
         self.X_train_reduced = spec.fit_transform(self.X_train)
         self.X_test_reduced = spec.fit_transform(self.X_test)
         
         return self.X_train_reduced, self.X_test_reduced
     
-    def apply_Tsne(self, device='CPU', n_components=2):
+    def apply_Tsne(self, device='CPU', n_jobs=1, n_components=2):
         """
         Applies t-SNE dimensionality reduction to the training and test data.
 
@@ -221,7 +221,7 @@ class DimensonalityReduction:
         """
 
         if device == 'CPU':            
-            tsne = TSNE(n_components=n_components, init='pca')
+            tsne = TSNE(n_components=n_components, init='pca',  n_jobs=n_jobs)
         elif device == 'CUDA':
             tsne = TSNE_CUDA(n_components=n_components, method='fft')
         
@@ -260,7 +260,8 @@ class DimensonalityReduction:
         models, 
         use_reduction=False, 
         reduction_method='PCA', 
-        device='CPU', 
+        device='CPU',
+        n_jobs=1,
         n_components=None, 
         n_runs=1
     ):
@@ -288,7 +289,7 @@ class DimensonalityReduction:
             for _ in tqdm(range(n_runs), desc=f"------{name} : Runs Progress", leave=True):
                 if use_reduction:
                     reduction_method_func = getattr(self, f"apply_{reduction_method}")
-                    X_train_reduced, X_test_reduced = reduction_method_func(device=device, n_components=n_components) 
+                    X_train_reduced, X_test_reduced = reduction_method_func(device=device, n_jobs=n_jobs, n_components=n_components) 
                     acc = self.train_test_model(
                         model=model[0], 
                         model_type=model[1],
