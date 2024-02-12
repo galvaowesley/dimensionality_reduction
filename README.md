@@ -9,13 +9,30 @@ The `DimensionalityReduction` class is designed to facilitate dimensionality red
 
 ### Key Features
 - **Supported Dimensionality Reduction Techniques:**
-  - Principal Component Analysis (PCA)
-  - Linear Discriminant Analysis (LDA)
-  - Kernel Principal Component Analysis (KernelPCA)
-  - Isomap
-  - Locally Linear Embedding (LLE)
-  - Spectral Embedding
-  - t-Distributed Stochastic Neighbor Embedding (t-SNE)
+
+The following dimensionality reduction methods are available:
+
+1. Principal Component Analysis (PCA)
+   - Method String: `'PCA'`
+   
+2. Linear Discriminant Analysis (LDA)
+   - Method String: `'LDA'`
+   
+3. Kernel Principal Component Analysis (KernelPCA)
+   - Method String: `'KernelPCA'`
+
+4. Isomap
+   - Method String: `'Isomap'`
+
+5. Locally Linear Embedding (LLE)
+   - Method String: `'Localembed'`
+
+6. Spectral Embedding
+   - Method String: `'SpectEmbed'`
+
+7. t-Distributed Stochastic Neighbor Embedding (t-SNE)
+   - Method String: `'Tsne'`
+
 
 - **Data Splitting and Scaling:**
   - The class supports splitting data into training and testing sets.
