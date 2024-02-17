@@ -4,7 +4,7 @@ import numpy as np
 def plot_embeddings(embeddings, labels, titles, cmap='tab10', figsize=(13, 21), ncols=3, save_as=None, dpi=300):
     assert len(embeddings) == len(labels) == len(titles), "embeddings, labels and titles lists must have the same length"
 
-    plt.rcParams['font.size'] = 18
+    
     
     rows = int(np.ceil(len(embeddings) / ncols))
     fig, axs = plt.subplots(rows, ncols, figsize=figsize)
